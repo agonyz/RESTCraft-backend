@@ -1,0 +1,26 @@
+services:
+  minecraft:
+    image: itzg/minecraft-server:java17
+    environment:
+      EULA: "TRUE"
+      TYPE: FORGE
+      VERSION: 1.20.1
+      FORGE_VERSION: 47.2.0
+    ports:
+      - "25565:25565"
+    volumes:
+      - ./data:/data
+
+  backend:
+    build: .
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./db:/db
+    command: [ "node", "dist/index.js" ]
+    depends_on:
+      - minecraft
+    restart: unless-stopped

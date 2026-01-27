@@ -1,0 +1,8 @@
+services:
+  backend:
+    image: ghcr.io/agonyz/restcraft-backend:latest
+    env_file:
+      - .env
+    volumes:
+      - ./db:/db
+    restart: unless-stopped

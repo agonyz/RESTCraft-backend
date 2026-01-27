@@ -1,0 +1,9 @@
+data/*
+!data/.gitkeep
+db/*
+!db/.gitkeep
+.env
+.idea
+node_modules
+dist
+coverage
