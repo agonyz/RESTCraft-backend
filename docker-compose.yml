@@ -12,15 +12,17 @@ services:
       - ./data:/data
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     working_dir: /app
     ports:
       - "3000:3000"
     env_file:
       - .env
     volumes:
+      - ./:/app
       - ./db:/db
-    command: [ "node", "dist/index.js" ]
     depends_on:
       - minecraft
     restart: unless-stopped

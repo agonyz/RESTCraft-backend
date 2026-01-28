@@ -31,8 +31,6 @@ app.post('/api/join', (req, res) => {
   if (!player) return res.status(400).send("Missing 'player' field");
 
   currentPlayers.add(player);
-  console.log(`[JOIN] ${player}`);
-  console.log('Current players:', Array.from(currentPlayers));
   res.sendStatus(200);
 });
 
@@ -41,15 +39,15 @@ app.post('/api/leave', (req, res) => {
   if (!player) return res.status(400).send("Missing 'player' field");
 
   currentPlayers.delete(player);
-  console.log(`[LEAVE] ${player}`);
-  console.log('Current players:', Array.from(currentPlayers));
   res.sendStatus(200);
 });
 
 app.post('/api/death', async (req, res) => {
-  const { player } = req.body;
-  if (!player) return res.status(400).send("Missing 'player' field");
-  console.log(`[DEATH] ${player}`);
+  const { player, deathMessage } = req.body;
+
+  if (!player || !deathMessage) {
+    return res.status(400).send("Missing 'player' or 'deathMessage' field");
+  }
 
   // increment death count in database
   const stmt = db.prepare(`
@@ -59,16 +57,15 @@ app.post('/api/death', async (req, res) => {
   `);
   stmt.run(player);
 
-  // typeScript-safe cast
   type Row = { deaths: number };
   const row = db
     .prepare('SELECT deaths FROM player_deaths WHERE player = ?')
     .get(player) as Row | undefined;
-  console.log(`Total deaths for ${player}: ${row ? row.deaths : 0}`);
+  console.log(`${deathMessage}. Total deaths: ${row ? row.deaths : 0}`);
 
   await notifyDiscord(
     config.discordWebhookUrl,
-    `${player} has died. Total deaths: ${row ? row.deaths : 0}`,
+    `${deathMessage}. Total deaths: ${row ? row.deaths : 0}`,
   );
 
   res.sendStatus(200);
